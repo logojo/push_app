@@ -67,7 +67,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   }
 
 //* metodo para manejar los mensajes o notificaciones que se envien del backend
-  void _handleRemoteMessage(RemoteMessage message) {
+  void handleRemoteMessage(RemoteMessage message) {
     if (message.notification == null) return;
 
     final notification = PushMessage(
@@ -85,7 +85,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   }
 
   void _onForegroundMessage() {
-    FirebaseMessaging.onMessage.listen(_handleRemoteMessage);
+    FirebaseMessaging.onMessage.listen(handleRemoteMessage);
   }
 
   void requestPemition() async {
@@ -107,5 +107,17 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
       NotificationReceived event, Emitter<NotificationsState> emit) {
     emit(state
         .copyWith(notifications: [event.notification, ...state.notifications]));
+  }
+
+//*Metodo vara buscar dentro de las notificaciones por id
+  PushMessage? getMessageById(String pushMessageId) {
+    final exist = state.notifications
+        .any((element) => element.messageId == pushMessageId);
+
+    if (!exist) return null;
+
+//* firstWhere es para buscar por is dentro del List si existe el elemento
+    return state.notifications
+        .firstWhere((element) => element.messageId == pushMessageId);
   }
 }
