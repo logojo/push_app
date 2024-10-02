@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "245481038898",
+    "project_id": "flutter-projects-9a915",
+    "storage_bucket": "flutter-projects-9a915.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:245481038898:android:5ba2dc3a2b590b8457882b",
+        "android_client_info": {
+          "package_name": "com.joelflores.push_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAf8GbjZ23B_tAP56Oi-15dXpIsS7rQFVg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

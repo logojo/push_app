@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:push_app/presentation/blocs/notifications/notifications_bloc.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -7,9 +9,16 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Permisos'),
+        //* mostrando el estado actual del permiso de la aplicación
+        title: context
+            .select((NotificationsBloc bloc) => Text('${bloc.state.status}')),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.settings))
+          IconButton(
+              onPressed: () {
+                //*Accediendo al bloc y ejecutando la función requestPemition
+                context.read<NotificationsBloc>().requestPemition();
+              },
+              icon: const Icon(Icons.settings))
         ],
       ),
       body: _HomeView(),
@@ -22,10 +31,20 @@ class _HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final notifications =
+        context.watch<NotificationsBloc>().state.notifications;
+
     return ListView.builder(
-      itemCount: 0,
+      itemCount: notifications.length,
       itemBuilder: (context, index) {
-        return const ListTile();
+        final notification = notifications[index];
+        return ListTile(
+          title: Text(notification.title),
+          subtitle: Text(notification.body),
+          leading: notification.imageUrl != null
+              ? Image.network(notification.imageUrl!)
+              : const SizedBox(), //image
+        );
       },
     );
   }
