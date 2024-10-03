@@ -1,6 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:push_app/config/local_notifications/local_notitications.dart';
 import 'package:push_app/config/router/app_router.dart';
 
 import 'package:push_app/config/theme/app_theme.dart';
@@ -16,11 +17,19 @@ void main() async {
   //*inicializando notificaciones push
   await NotificationsBloc.initializeFCM();
 
+  //*inicializando local notifications
+  await LocalNotification.initializeLocalNotifications();
+
   //* instancia del bloc en el punto más alto de la aplicación
   //* esto permite que en toda la aplicacion se pueda acceder al bloc
-  runApp(MultiBlocProvider(
-      providers: [BlocProvider(create: (_) => NotificationsBloc())],
-      child: const MainApp()));
+  //* al bloc se le esta mandado los parametros requestPermissionLocalNotifications y showLocalNotification
+  runApp(MultiBlocProvider(providers: [
+    BlocProvider(
+        create: (_) => NotificationsBloc(
+            requestPermissionLocalNotifications:
+                LocalNotification.requestPermissionLocalNotifications,
+            showLocalNotification: LocalNotification.showLocalNotification))
+  ], child: const MainApp()));
 }
 
 class MainApp extends StatelessWidget {

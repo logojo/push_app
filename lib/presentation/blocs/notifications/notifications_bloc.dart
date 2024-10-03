@@ -21,8 +21,19 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
+  int pushNumberId = 0;
 
-  NotificationsBloc() : super(const NotificationsState()) {
+  final Future<void> Function() requestPermissionLocalNotifications;
+  final void Function(
+      {required int id,
+      required String title,
+      required String body,
+      String? data})? showLocalNotification;
+
+  NotificationsBloc({
+    required this.requestPermissionLocalNotifications,
+    this.showLocalNotification,
+  }) : super(const NotificationsState()) {
     on<NotificationStatusChange>(_notificationStatusChanged);
 
     on<NotificationReceived>(_onPushMessageReceived);
@@ -63,6 +74,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
 
     //* token necesario para mandar la notificacion
     //* este token se puede grabar en el backend para despues mandarle notificaciones al telefono
+    //*Cuando el backend quiera mandar notificaciones al usuario tomar este token almacenado
     print(token);
   }
 
@@ -81,6 +93,15 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
             ? message.notification!.android?.imageUrl
             : message.notification!.apple?.imageUrl);
 
+    //*mostrando la notificación local si se tiene
+    if (showLocalNotification != null) {
+      showLocalNotification!(
+          id: ++pushNumberId,
+          title: notification.title,
+          body: notification.body,
+          data: notification.messageId);
+    }
+
     add(NotificationReceived(notification));
   }
 
@@ -88,6 +109,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     FirebaseMessaging.onMessage.listen(handleRemoteMessage);
   }
 
+  //*funcion que solucita los permisos al usuario para las push notifications (Externas )
   void requestPemition() async {
     NotificationSettings settings = await messaging.requestPermission(
       alert: true,
@@ -98,6 +120,10 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
       provisional: false,
       sound: true,
     );
+
+    //*funcion que solicita los permisos para las local notifications
+    //* no es tan necesario por que usa el mismo permiso que las push notifications
+    await requestPermissionLocalNotifications();
 
     //* Emitiendo el permiso dado por el usuario
     add(NotificationStatusChange(settings.authorizationStatus));
